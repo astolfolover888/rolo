@@ -7,7 +7,7 @@ local function esp(drop)
     dropesp.Center = true
     dropesp.Outline = true
     dropesp.Font = 2
-    dropesp.Color = Color3.fromRGB(170,25,35)
+    dropesp.Color = Color3.fromRGB(255,255,255)
     dropesp.Size = 13
     
     local renderstepped
@@ -29,7 +29,15 @@ local function esp(drop)
 end
 
 for i,drop in next, workspace.Items:GetChildren() do
-    if drop.Name == "Gem" or drop.Name == "RoundTable" then
+    if drop:IsA("Tool") then
+        if drop:FindFirstChild("Handle") then
+            esp(drop)
+        end
+    end
+end
+
+for i,drop in next, workspace:GetChildren() do
+    if drop:IsA("Tool") then
         if drop:FindFirstChild("Handle") then
             esp(drop)
         end
@@ -37,7 +45,15 @@ for i,drop in next, workspace.Items:GetChildren() do
 end
 
 workspace.Items.ChildAdded:Connect(function(drop)
-    if drop.Name == "Gem" or drop.Name == "Round Table" then
+    if drop:IsA("Tool") then
+        if drop:FindFirstChild("Handle") then
+            esp(drop)
+        end
+    end
+end)
+
+workspace.ChildAdded:Connect(function(drop)
+    if drop:IsA("Tool") then
         if drop:FindFirstChild("Handle") then
             esp(drop)
         end
