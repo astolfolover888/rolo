@@ -1,0 +1,93 @@
+local repo = 'https://raw.githubusercontent.com/wally-rblx/LinoriaLib/main/'
+
+local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
+local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+
+local plr = game.Players.LocalPlayer
+local chr = plr.Character or plr.CharacterAdded:Wait()
+local hum = chr:WaitForChild('Humanoid')
+local hrp = chr:WaitForChild('HumanoidRootPart')
+
+local Window = Library:CreateWindow({
+    Title = 'Fate Hub | Sakura Stand',
+    Center = true,
+    AutoShow = true,
+})
+
+local Tabs = {
+    Main = Window:AddTab('Main'),
+    ['UI Settings'] = Window:AddTab('UI Settings'),
+}
+--Main Section 1
+local LG = Tabs.Main:AddLeftGroupbox('Main')
+
+LG:AddButton('Item ESP', function()
+    local camera = workspace.CurrentCamera
+    local runservice = game:GetService("RunService")
+    
+    local function esp(drop)
+        local dropesp = Drawing.new("Text")
+        dropesp.Visible = false
+        dropesp.Center = true
+        dropesp.Outline = true
+        dropesp.Font = 2
+        dropesp.Color = Color3.fromRGB(255, 77, 127)
+        dropesp.Size = 15
+        
+        local renderstepped
+        renderstepped = runservice.RenderStepped:Connect(function()
+            if drop and workspace.Item:FindFirstChild(drop.Name) and drop:FindFirstChild("Main") and drop.Parent == workspace.Item then
+                local drop_pos, drop_onscreen = camera:WorldToViewportPoint(drop.Main.Position)
+                
+                if drop_onscreen then
+                    dropesp.Position = Vector2.new(drop_pos.X, drop_pos.Y)
+                    dropesp.Text = drop.Name.."(dist:"..""..tostring((hrp.Position - drop.Main.Position).magnitude)..")"
+                    dropesp.Visible = true
+                end
+            else
+                dropesp.Visible = false
+                dropesp:Remove()
+                renderstepped:Disconnect()
+            end
+        end)
+    end
+    
+    for i,drop in next, workspace.Item:GetChildren() do
+        if drop.Name == "Box" then
+            if drop:FindFirstChild("Main") then
+                esp(drop)
+            end
+        end
+    end
+    
+    workspace.Item.ChildAdded:Connect(function(drop)
+        if drop.Name == "Box" then
+            if drop:FindFirstChild("Main") then
+                esp(drop)
+            end
+        end
+    end)
+end)
+
+--UI Settings
+local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
+
+MenuGroup:AddButton('Unload', function() Library:Unload() end)
+MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'End', NoUI = true, Text = 'Menu keybind' }) 
+
+Library.ToggleKeybind = Options.MenuKeybind -- Allows you to have a custom keybind for the menu
+
+ThemeManager:SetLibrary(Library)
+SaveManager:SetLibrary(Library)
+
+SaveManager:IgnoreThemeSettings() 
+
+SaveManager:SetIgnoreIndexes({ 'MenuKeybind' }) 
+
+ThemeManager:SetFolder('MyScriptHub')
+SaveManager:SetFolder('MyScriptHub/specific-game')
+
+SaveManager:BuildConfigSection(Tabs['UI Settings']) 
+
+ThemeManager:ApplyToTab(Tabs['UI Settings'])
