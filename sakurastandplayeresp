@@ -1,0 +1,63 @@
+local directory = workspace.Living
+local cam = workspace.CurrentCamera
+local runservice = game:GetService('RunService')
+
+function esp(drop)
+    
+    local item_esp_text = Drawing.new('Text')
+    item_esp_text.Visible = false
+    item_esp_text.Center = true
+    item_esp_text.Outline = true
+    item_esp_text.Font = 2
+    item_esp_text.Color = Color3.fromRGB(255,0,255)
+    item_esp_text.Size = 13
+    
+    local line = Drawing.new('Line')
+    line.Visible = false
+    line.From = Vector2.new(685,740)
+    line.To = Vector2.new(200,200)
+    line.Color = Color3.fromRGB(255,0,255)
+    line.Thickness = 1
+    line.ZIndex = 1
+    
+    local renderstepped
+    renderstepped = runservice.RenderStepped:Connect(function()
+        if drop and game.Players:FindFirstChild(drop.Name) and drop.Name ~= game.Players.LocalPlayer.Name and drop:FindFirstChild('Head') then
+            local item_pos, item_onscreen = cam:WorldToViewportPoint(drop.Head.Position)
+            
+            if item_onscreen then
+                item_esp_text.Position = Vector2.new(item_pos.X,item_pos.Y)
+                item_esp_text.Text = drop.Name
+                item_esp_text.Visible = true
+                line.Visible = true
+                line.To = Vector2.new(item_pos.X,item_pos.Y)
+            else
+                item_esp_text.Visible = false 
+                line.Visible = false
+            end
+        else
+            item_esp_text.Visible = false
+            line.Visible = false
+            item_esp_text:Remove()
+            line:Remove()
+            renderstepped:Disconnect()    
+        end
+    end)
+end
+
+for i,drop in next, directory:GetChildren() do
+    if drop:IsA('Model') then
+        if drop:FindFirstChild('Head') then
+            esp(drop) 
+        end
+    end
+end
+
+directory.ChildAdded:Connect(function(drop)
+    wait(.5)
+    if drop:IsA('Model') then
+        if drop:FindFirstChild('Head') then
+            esp(drop) 
+        end
+    end
+end)
