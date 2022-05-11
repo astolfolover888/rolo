@@ -1,0 +1,49 @@
+local cam = workspace.CurrentCamera
+local runservice = game:GetService('RunService')
+
+function esp(player)
+    
+    local playeresp = Drawing.new('Text')
+    playeresp.Visible = false
+    playeresp.Center = true
+    playeresp.Outline = true
+    playeresp.Font = 2
+    playeresp.Color = Color3.fromRGB(255,0,255)
+    playeresp.Size = 15
+    
+    local renderstepped
+    renderstepped = runservice.RenderStepped:Connect(function()
+        if player and player.Name ~= game.Players.LocalPlayer.Name and game.Players:FindFirstChild(player.Name) and workspace:FindFirstChild(player.Name) and player:FindFirstChild('Head') then
+            local player_pos, player_onscreen = cam:WorldToViewportPoint(player.Head.Position)
+            
+            if player_onscreen then
+                playeresp.Position = Vector2.new(player_pos.X, player_pos.Y)
+                playeresp.Text = player.Name
+                playeresp.Visible = true
+            else
+                playeresp.Visible = false
+            end
+        else
+            playeresp.Visible = false
+            playeresp:Remove()
+            renderstepped:Disconnect()
+        end
+    end)
+    
+end
+
+for i,player in next, workspace:GetChildren() do
+    if player:IsA('Model') then
+        if player:FindFirstChild('Head') then
+            esp(player)
+        end
+    end
+end
+
+workspace.ChildAdded:Connect(function(player)
+    if player:IsA('Model') then
+        if player:FindFirstChild('Head') then
+            esp(player)
+        end
+    end
+end)
