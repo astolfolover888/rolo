@@ -1,0 +1,6 @@
+if game.PlaceId == 6667701234 then
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/astolfolover888/rolo/main/fatehubfatexero'))()
+end
+if game.PlaceId == 8534845015 then
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/astolfolover888/rolo/main/fatehubsakurastand'))()
+end
