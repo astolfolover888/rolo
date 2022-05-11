@@ -1,0 +1,164 @@
+local repo = 'https://raw.githubusercontent.com/wally-rblx/LinoriaLib/main/'
+
+local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
+local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+
+_G.WalkSpeed = 16
+_G.WalkSpeedToggle = false
+
+local plr = game.Players.LocalPlayer
+local chr = plr.Character or plr.CharacterAdded:Wait()
+local hum = chr:WaitForChild("Humanoid")
+
+local runservice = game:GetService('RunService')
+
+local Window = Library:CreateWindow({
+    Title = 'Fate Hub | Fate/Xero',
+    Center = true,
+    AutoShow = true,
+})
+
+local Tabs = {
+    Main = Window:AddTab('Main'),
+    Misc = Window:AddTab('Misc'),
+    ['UI Settings'] = Window:AddTab('UI Settings'),
+}
+
+
+local LGB = Tabs.Main:AddLeftGroupbox('Main')
+local LGB_Misc = Tabs.Misc:AddLeftGroupbox('Misc')
+
+--LGB_Misc
+LGB_Misc:AddButton('Full Dark', function()
+    for i,v in pairs(chr:GetDescendants()) do
+        if v:IsA("Part") then
+            v.Color = Color3.fromRGB(0,0,0)
+            if v:FindFirstChildOfClass("SpecialMesh") then
+                v:FindFirstChildOfClass("SpecialMesh").TextureId = ""
+            end
+        end
+        if v:IsA("MeshPart") then
+            v.TextureID = ""
+            v.Color = Color3.fromRGB(0,0,0)
+        end
+        if v:IsA("Clothing") then
+            v:Destroy()
+        end
+    end
+end)
+--LGB_Main
+LGB:AddButton('Item Esp', function()
+    local camera = workspace.CurrentCamera
+    local runservice = game:GetService("RunService")
+    
+    local function esp(drop)
+        local dropesp = Drawing.new("Text")
+        dropesp.Visible = false
+        dropesp.Center = true
+        dropesp.Outline = true
+        dropesp.Font = 2
+        dropesp.Color = Color3.fromRGB(170,25,35)
+        dropesp.Size = 13
+        
+        local renderstepped
+        renderstepped = runservice.RenderStepped:Connect(function()
+            if drop and workspace.Items:FindFirstChild(drop.Name) and drop:FindFirstChild("Handle") and drop.Parent == workspace.Items or drop.Parent == workspace then
+                local drop_pos, drop_onscreen = camera:WorldToViewportPoint(drop.Handle.Position)
+                
+                if drop_onscreen then
+                    dropesp.Position = Vector2.new(drop_pos.X, drop_pos.Y)
+                    dropesp.Text = drop.Name
+                    dropesp.Visible = true
+                end
+            else
+                dropesp.Visible = false
+                dropesp:Remove()
+                renderstepped:Disconnect()
+            end
+        end)
+    end
+    
+    for i,drop in next, workspace.Items:GetChildren() do
+        if drop.Name == "Gem" or drop.Name == "RoundTable" or drop.Name == "OrleansGrail" then
+            if drop:FindFirstChild("Handle") then
+                esp(drop)
+            end
+        end
+    end
+    
+    for i,drop in next, workspace:GetChildren() do
+        if drop.Name == "Gem" or drop.Name == "RoundTable" or drop.Name == "OrleansGrail" then
+            if drop:FindFirstChild("Handle") then
+                esp(drop)
+            end
+        end
+    end
+    
+    workspace.Items.ChildAdded:Connect(function(drop)
+        if drop.Name == "Gem" or drop.Name == "RoundTable" or drop.Name == "OrleansGrail" then
+            if drop:FindFirstChild("Handle") then
+                esp(drop)
+            end
+        end
+    end)
+    
+    workspace.ChildAdded:Connect(function(drop)
+        if drop.Name == "Gem" or drop.Name == "RoundTable" or drop.Name == "OrleansGrail" then
+            if drop:FindFirstChild("Handle") then
+                esp(drop)
+            end
+        end
+    end)
+end)
+
+LGB:AddToggle('WalkSpeed', {
+    Text = 'WalkSpeed Toggle',
+    Default = false,
+    Tooltip = 'This will toggle the walkspeed slider.',
+})
+
+Toggles.WalkSpeed:OnChanged(function()
+    _G.WalkSpeedToggle = Toggles.WalkSpeed.Value
+end)
+
+LGB:AddSlider('WalkSpeedSlider', {
+    Text = 'WalkSpeed Slider',
+    Default = 16,
+    Min = 16,
+    Max = 150,
+    Rounding = 1,
+    Compact = false,
+})
+
+Options.WalkSpeedSlider:OnChanged(function()
+    _G.WalkSpeed = Options.WalkSpeedSlider.Value
+end)
+
+runservice.RenderStepped:Connect(function()
+    if _G.WalkSpeedToggle == true then
+        hum.WalkSpeed = _G.WalkSpeed
+    else
+        hum.Walkspeed = 24
+    end
+end)
+
+local MG = Tabs['UI Settings']:AddLeftGroupbox('Menu')
+MG:AddButton('Unload', function() Library:Unload() end)
+MG:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'End', NoUI = true, Text = 'Menu keybind'})
+
+Library.ToggleKeybind = Options.MenuKeybind
+
+ThemeManager:SetLibrary(Library)
+SaveManager:SetLibrary(Library)
+
+SaveManager:IgnoreThemeSettings() 
+
+SaveManager:SetIgnoreIndexes({ 'MenuKeybind' }) 
+
+ThemeManager:SetFolder('MyScriptHub')
+SaveManager:SetFolder('MyScriptHub/FateXero')
+
+SaveManager:BuildConfigSection(Tabs['UI Settings']) 
+
+ThemeManager:ApplyToTab(Tabs['UI Settings'])
