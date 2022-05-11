@@ -1,0 +1,45 @@
+local camera = workspace.CurrentCamera
+local runservice = game:GetService("RunService")
+
+local function esp(drop)
+    local dropesp = Drawing.new("Text")
+    dropesp.Visible = false
+    dropesp.Center = true
+    dropesp.Outline = true
+    dropesp.Font = 2
+    dropesp.Color = Color3.fromRGB(170,25,35)
+    dropesp.Size = 13
+    
+    local renderstepped
+    renderstepped = runservice.RenderStepped:Connect(function()
+        if drop and workspace.Items:FindFirstChild(drop.Name) and drop:FindFirstChild("Handle") and drop.Parent == workspace.Items or drop.Parent == workspace then
+            local drop_pos, drop_onscreen = camera:WorldToViewportPoint(drop.Handle.Position)
+            
+            if drop_onscreen then
+                dropesp.Position = Vector2.new(drop_pos.X, drop_pos.Y)
+                dropesp.Text = drop.Name
+                dropesp.Visible = true
+            end
+        else
+            dropesp.Visible = false
+            dropesp:Remove()
+            renderstepped:Disconnect()
+        end
+    end)
+end
+
+for i,drop in next, workspace.Items:GetChildren() do
+    if drop.Name == "Gem" or drop.Name == "RoundTable" then
+        if drop:FindFirstChild("Handle") then
+            esp(drop)
+        end
+    end
+end
+
+workspace.Items.ChildAdded:Connect(function(drop)
+    if drop.Name == "Gem" or drop.Name == "Round Table" then
+        if drop:FindFirstChild("Handle") then
+            esp(drop)
+        end
+    end
+end)
