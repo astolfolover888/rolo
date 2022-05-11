@@ -1,61 +1,79 @@
-local camera = workspace.CurrentCamera
-local runservice = game:GetService("RunService")
+local directory = workspace.Items
+local cam = workspace.CurrentCamera
+local runservice = game:GetService('RunService')
 
-local function esp(drop)
-    local dropesp = Drawing.new("Text")
-    dropesp.Visible = false
-    dropesp.Center = true
-    dropesp.Outline = true
-    dropesp.Font = 2
-    dropesp.Color = Color3.fromRGB(255,255,255)
-    dropesp.Size = 13
+function esp(drop)
+    
+    local item_esp_text = Drawing.new('Text')
+    item_esp_text.Visible = false
+    item_esp_text.Center = true
+    item_esp_text.Outline = true
+    item_esp_text.Font = 2
+    item_esp_text.Color = Color3.fromRGB(255,255,255)
+    item_esp_text.Size = 13
+    
+    local line = Drawing.new('Line')
+    line.Visible = false
+    line.From = Vector2.new(685,740)
+    line.To = Vector2.new(200,200)
+    line.Color = Color3.fromRGB(255,255,255)
+    line.Thickness = 1
+    line.ZIndex = 1
     
     local renderstepped
     renderstepped = runservice.RenderStepped:Connect(function()
-        if drop and workspace.Items:FindFirstChild(drop.Name) and drop:FindFirstChild("Handle") and drop.Parent == workspace.Items or drop.Parent == workspace then
-            local drop_pos, drop_onscreen = camera:WorldToViewportPoint(drop.Handle.Position)
+        if drop and drop.Parent == directory and drop:FindFirstChild('Handle') then
+            local item_pos, item_onscreen = cam:WorldToViewportPoint(drop.Handle.Position)
             
-            if drop_onscreen then
-                dropesp.Position = Vector2.new(drop_pos.X, drop_pos.Y)
-                dropesp.Text = drop.Name
-                dropesp.Visible = true
+            if item_onscreen then
+                item_esp_text.Position = Vector2.new(item_pos.X,item_pos.Y)
+                item_esp_text.Text = drop.Name
+                item_esp_text.Visible = true
+                line.Visible = true
+                line.To = Vector2.new(item_pos.X,item_pos.Y)
+            else
+                item_esp_text.Visible = false 
+                line.Visible = false
             end
         else
-            dropesp.Visible = false
-            dropesp:Remove()
-            renderstepped:Disconnect()
+            item_esp_text.Visible = false
+            line.Visible = false
+            item_esp_text:Remove()
+            line:Remove()
+            renderstepped:Disconnect()    
         end
     end)
 end
 
-for i,drop in next, workspace.Items:GetChildren() do
-    if drop:IsA("Tool") then
-        if drop:FindFirstChild("Handle") then
-            esp(drop)
+for i,drop in next, directory:GetChildren() do
+    if drop:IsA('Tool') then
+        if drop:FindFirstChild('Handle') then
+            esp(drop) 
         end
     end
 end
 
 for i,drop in next, workspace:GetChildren() do
-    if drop:IsA("Tool") then
-        if drop:FindFirstChild("Handle") then
-            esp(drop)
+    if drop:IsA('Tool') then
+        if drop:FindFirstChild('Handle') then
+            esp(drop) 
         end
     end
 end
 
-workspace.Items.ChildAdded:Connect(function(drop)
-    if drop:IsA("Tool") then
-        if drop:FindFirstChild("Handle") then
-            esp(drop)
+directory.ChildAdded:Connect(function(drop)
+    wait(.5)
+    if drop:IsA('Tool') then
+        if drop:FindFirstChild('Handle') then
+            esp(drop) 
         end
     end
 end)
-
 workspace.ChildAdded:Connect(function(drop)
-    if drop:IsA("Tool") then
-        if drop:FindFirstChild("Handle") then
-            esp(drop)
+    wait(.5)
+    if drop:IsA('Tool') then
+        if drop:FindFirstChild('Handle') then
+            esp(drop) 
         end
     end
 end)
