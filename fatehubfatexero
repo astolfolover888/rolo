@@ -52,6 +52,36 @@ LGB:AddButton('Item Esp', function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/astolfolover888/rolo/main/fatexeroitemesp'))()
 end)
 
+LGB:AddButton('Grab All Items | Workspace', function()
+    local itemsinworkspace = workspace:GetChildren()
+    local itemsinitems = workspace.Items:GetChildren()
+    
+    for i,item in pairs(workspace:GetChildren()) do
+        if item:IsA('Tool') and item:FindFirstChild('Handle') then
+            wait(.1)
+            chr:SetPrimaryPartCFrame(item.Handle.CFrame)
+        end
+    end
+    
+end)
+
+LGB:AddButton('Grab All Items | Alt', function()
+    local itemsinworkspace = workspace:GetChildren()
+    local itemsinitems = workspace.Items:GetChildren()
+    
+    for i,item in pairs(workspace.Items:GetChildren()) do
+        if item:IsA('Tool') and item:FindFirstChild('Handle') then
+            wait(.1)
+            chr:SetPrimaryPartCFrame(item.Handle.CFrame)
+        end
+    end
+    
+end)
+
+LGB:AddButton('Player ESP', function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/astolfolover888/rolo/main/fatexeroplayeresp'))()
+end)
+
 LGB:AddToggle('WalkSpeed', {
     Text = 'WalkSpeed Toggle',
     Default = false,
